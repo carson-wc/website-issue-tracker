@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>weBoost Website Issue Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F4F4;--card:#fff;--ink:#000;--muted:#515151;--line:#dcdbd2;
+  --accent:#000;--accent-ink:#fff;--red:#CD0000;
+  --urgent:#fff;--urgent-bg:#CD0000;--high:#fff;--high-bg:#7E000B;
+  --med:#000;--med-bg:#B1C2C7;--low:#000;--low-bg:#D0CDC0;
+  --ok:#000;--ok-bg:#C7D8B9;
+}
+h1,h2,.bc{font-family:'Barlow Condensed',Inter,sans-serif;text-transform:uppercase;letter-spacing:.01em}
+.overline{color:var(--red);font-size:12.8px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+button,input,select,textarea{font:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+h1{font-size:34px;line-height:1;margin:0;font-weight:600}
+.modal h2{font-size:24px!important;font-weight:600}
+.s-Open{color:#fff!important;background:#313131!important}
+.meta a,.dl a{color:var(--ink)!important;text-decoration:underline}
+.btn{font-size:12.8px;font-weight:500}
+.btn.ok{background:#000!important;border-color:#000!important}
+.seg button.on{background:#313131}
+.prio-pick button.on.p-Urgent,.prio-pick button.on.p-High{border-color:transparent}
+.prio-pick button.on.p-Medium,.prio-pick button.on.p-Low{border-color:#000}
+.drop:focus{outline:none;border-color:#000;background:#ECEBE1}
+.linkbtn{border:0;background:none;padding:0;color:#000;text-decoration:underline;cursor:pointer;font:inherit}
+.drop.over{border-color:#000;background:#ECEBE1}
+.err{color:var(--red)}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500;color:var(--ink)}
+.btn:hover{background:#f0f2f5}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.seg{display:flex;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;color:var(--muted);font-weight:500}
+.seg button.on{background:var(--ink);color:#fff}
+.seg .n{opacity:.7;margin-left:4px;font-size:12px}
+.search{flex:1;min-width:180px;border:1px solid var(--line);border-radius:8px;padding:7px 12px;background:#fff}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:86px 1fr auto;gap:14px;align-items:center;cursor:pointer}
+.row:hover{border-color:#c9ced6}
+.row.resolved{opacity:.72}
+.desc{font-weight:500;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.4}
+.meta{color:var(--muted);font-size:12px;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.meta a{color:var(--accent);text-decoration:none;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;text-align:center}
+.p-Urgent{color:#fff;background:var(--urgent-bg)}
+.p-High{color:var(--high);background:var(--high-bg)}
+.p-Medium{color:var(--med);background:var(--med-bg)}
+.p-Low{color:var(--low);background:var(--low-bg)}
+.s-Open{color:var(--med);background:var(--med-bg)}
+.s-Resolved{color:var(--ok);background:var(--ok-bg)}
+.right{display:flex;align-items:center;gap:8px}
+.thumbs{display:flex;gap:4px}
+.thumbs img{width:40px;height:30px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.empty,.notice{text-align:center;color:var(--muted);padding:40px 10px;background:#fff;border:1px dashed var(--line);border-radius:10px}
+.notice{padding:12px;margin-bottom:12px;border-style:solid;text-align:left}
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(20,24,31,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:10}
+.scrim.show{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:620px;padding:22px}
+.modal h2{margin:0 0 16px;font-size:17px}
+label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
+label .req{color:var(--red)}
+.hint{font-weight:400;color:var(--muted);font-size:12px}
+input[type=text],input[type=url],input[type=password],textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff}
+textarea{min-height:110px;resize:vertical}
+.drop{border:1.5px dashed #c3c9d2;border-radius:8px;padding:16px;text-align:center;color:var(--muted);cursor:pointer}
+.drop.over{border-color:var(--accent);background:#f2f7fc}
+.shots{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.shot{position:relative}
+.shot img{width:110px;height:76px;object-fit:cover;border-radius:6px;border:1px solid var(--line);display:block}
+.shot button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0;background:var(--ink);color:#fff;cursor:pointer;font-size:12px;line-height:20px;padding:0}
+.shot .up{position:absolute;inset:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:11px;border-radius:6px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.err{color:var(--red);font-size:13px;margin-top:10px;min-height:1em}
+.prio-pick{display:flex;gap:6px;flex-wrap:wrap}
+.prio-pick button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:12px}
+.prio-pick button.on.p-Urgent{border-color:var(--red)}.prio-pick button.on.p-High{border-color:var(--high)}
+.prio-pick button.on.p-Medium{border-color:var(--med)}.prio-pick button.on.p-Low{border-color:var(--low)}
+.prio-pick button:not(.on){background:#fff;color:var(--muted)}
+.dl{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:13px;margin-top:6px}
+.dl dt{color:var(--muted)}
+.dl dd{margin:0;word-break:break-word}
+.big img{max-width:100%;border-radius:8px;border:1px solid var(--line);margin-top:8px;cursor:zoom-in}
+.fulldesc{white-space:pre-wrap;line-height:1.5;margin:0 0 6px}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:20;cursor:zoom-out}
+.lightbox.show{display:flex}
+.lightbox img{max-width:95vw;max-height:92vh}
+@media(max-width:640px){.row{grid-template-columns:1fr}.right{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="overline">weBoost CX</div>
+      <h1>Website Issue Tracker</h1>
+      <div class="sub">weboost.com issues found by CX, for Digital Merchandising to fix</div>
+    </div>
+    <div style="display:flex;gap:8px"><button class="btn primary" id="newBtn">+ Report an issue</button></div>
+  </header>
+
+  <div id="notice"></div>
+
+  <div class="toolbar">
+    <div class="seg" id="statusSeg">
+      <button data-v="Open" class="on">Open<span class="n" id="cOpen"></span></button>
+      <button data-v="Resolved">Resolved<span class="n" id="cResolved"></span></button>
+      <button data-v="All">All</button>
+    </div>
+    <div class="seg" id="prioSeg">
+      <button data-v="All" class="on">All priorities</button>
+      <button data-v="Urgent">Urgent</button>
+      <button data-v="High">High</button>
+      <button data-v="Medium">Medium</button>
+      <button data-v="Low">Low</button>
+    </div>
+    <input class="search" id="q" type="text" placeholder="Search description or URL">
+  </div>
+
+  <div class="list" id="list"><div class="empty">Loading tickets…</div></div>
+</div>
+
+<!-- Passcode -->
+<div class="scrim" id="gate">
+  <form class="modal" id="gateForm" style="max-width:380px">
+    <h2>Team passcode</h2>
+    <p class="sub" style="margin:0 0 6px">Enter the passcode your manager shared.</p>
+    <input type="password" id="gatePass" autocomplete="current-password">
+    <div class="err" id="gateErr"></div>
+    <div class="actions"><button type="submit" class="btn primary">Continue</button></div>
+  </form>
+</div>
+
+<!-- New ticket -->
+<div class="scrim" id="newScrim">
+  <form class="modal" id="newForm" novalidate>
+    <h2>Report a website issue</h2>
+    <label>Description of the issue <span class="req">*</span></label>
+    <textarea id="fDesc" placeholder="What's wrong, and what should it say or do instead?"></textarea>
+    <label>URL affected</label>
+    <input id="fUrl" type="url" placeholder="https://www.weboost.com/...">
+    <label>Priority</label>
+    <div class="prio-pick" id="fPrio">
+      <button type="button" class="p-Urgent" data-v="Urgent">Urgent</button>
+      <button type="button" class="p-High" data-v="High">High</button>
+      <button type="button" class="p-Medium on" data-v="Medium">Medium</button>
+      <button type="button" class="p-Low" data-v="Low">Low</button>
+    </div>
+    <label>Screenshots <span class="hint">paste with Ctrl+V anywhere in this form</span></label>
+    <div class="drop" id="drop" tabindex="0"><strong>Press Ctrl+V to paste a screenshot</strong><br><span class="hint">or drag images here, or <button type="button" class="linkbtn" id="pickBtn">choose files</button></span></div>
+    <input type="file" id="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden>
+    <div class="shots" id="shots"></div>
+    <label>Your name <span class="req">*</span></label>
+    <input id="fName" type="text" autocomplete="name">
+    <div class="err" id="fErr"></div>
+    <div class="actions">
+      <button type="button" class="btn" id="cancelNew">Cancel</button>
+      <button type="submit" class="btn primary" id="submitNew">Submit ticket</button>
+    </div>
+  </form>
+</div>
+
+<!-- Detail -->
+<div class="scrim" id="detScrim"><div class="modal" id="det"></div></div>
+<div class="lightbox" id="lb"><img id="lbImg" alt=""></div>
+
+<script>
+const PRIO_RANK={Urgent:0,High:1,Medium:2,Low:3};
+const $=id=>document.getElementById(id);
+let tickets=[],fStatus='Open',fPrio='All',q='',pending=[],newPrio='Medium',openId=null;
+const ls={get:k=>{try{return localStorage.getItem(k)||''}catch(e){return''}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+let pass=ls.get('wi_pass');
+
+const ref=id=>'WEB-'+String(id).padStart(4,'0');
+const fmt=iso=>iso?new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+function el(tag,attrs={},kids=[]){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==='class')e.className=v;else if(k==='text')e.textContent=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}(Array.isArray(kids)?kids:[kids]).forEach(c=>c&&e.append(c));return e}
+function safeHref(u){try{const x=new URL(u);return(x.protocol==='https:'||x.protocol==='http:')?x.href:null}catch(e){return null}}
+function notice(msg){$('notice').replaceChildren(msg?el('div',{class:'notice',text:msg}):'')}
+
+class AuthError extends Error{}
+async function api(path,method='GET',body){
+  const r=await fetch(path,{method,headers:{'Content-Type':'application/json','x-team-passcode':pass},body:body?JSON.stringify(body):undefined});
+  if(r.status===401){ls.del('wi_pass');pass='';showGate('That passcode did not work. Try again.');throw new AuthError()}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error&&j.error!=='server_error'?j.error:'Something went wrong. Try again.');
+  return j;
+}
+
+// ---- passcode gate ----
+function showGate(msg){$('gateErr').textContent=msg||'';$('gate').classList.add('show');setTimeout(()=>$('gatePass').focus(),0)}
+$('gateForm').addEventListener('submit',async e=>{e.preventDefault();pass=$('gatePass').value.trim();if(!pass)return;$('gate').classList.remove('show');ls.set('wi_pass',pass);await load()});
+
+// ---- list ----
+async function load(){
+  try{tickets=await api('/api/tickets');render();if(openId)renderDetail()}
+  catch(e){if(!(e instanceof AuthError))$('list').replaceChildren(el('div',{class:'empty',text:'Could not load tickets. Reload the page to try again.'}))}
+}
+function render(){
+  const cO=tickets.filter(t=>t.status==='Open').length;
+  $('cOpen').textContent=cO;$('cResolved').textContent=tickets.length-cO;
+  let rows=tickets.filter(t=>(fStatus==='All'||t.status===fStatus)&&(fPrio==='All'||t.priority===fPrio));
+  if(q){const s=q.toLowerCase();rows=rows.filter(t=>(t.description||'').toLowerCase().includes(s)||(t.url||'').toLowerCase().includes(s)||ref(t.id).toLowerCase().includes(s))}
+  rows.sort((a,b)=>(a.status===b.status?0:a.status==='Open'?-1:1)||(PRIO_RANK[a.priority]??9)-(PRIO_RANK[b.priority]??9)||(new Date(b.created_at)-new Date(a.created_at)));
+  if(!rows.length){$('list').replaceChildren(el('div',{class:'empty',text:tickets.length?'No tickets match these filters.':'No tickets yet. Use "Report an issue" to add the first one.'}));return}
+  $('list').replaceChildren(...rows.map(t=>{
+    const href=safeHref(t.url);
+    const meta=el('div',{class:'meta'},[
+      el('span',{text:ref(t.id)}),
+      href?el('a',{href,target:'_blank',rel:'noopener',text:t.url,onclick:e=>e.stopPropagation()}):null,
+      el('span',{text:t.reported_by+' · '+fmt(t.created_at)})
+    ]);
+    const th=el('div',{class:'thumbs'},(t.screenshot_urls||[]).slice(0,3).map(u=>el('img',{src:u,alt:'screenshot'})));
+    return el('div',{class:'row'+(t.status==='Resolved'?' resolved':''),onclick:()=>{openId=t.id;renderDetail();$('detScrim').classList.add('show')}},[
+      el('span',{class:'pill p-'+t.priority,text:t.priority}),
+      el('div',{},[el('div',{class:'desc',text:t.description}),meta]),
+      el('div',{class:'right'},[th,el('span',{class:'pill s-'+t.status,text:t.status})])
+    ]);
+  }));
+}
+
+// ---- detail ----
+let saving=false;
+async function save(id,patch){
+  if(saving)return;saving=true;
+  try{const u=await api('/api/tickets','PATCH',{id,...patch});const i=tickets.findIndex(t=>t.id===id);if(i>=0)tickets[i]={...tickets[i],...u};render();renderDetail()}
+  catch(e){if(!(e instanceof AuthError)){const d=$('dErr');if(d)d.textContent=e.message}}
+  finally{saving=false}
+}
+function renderDetail(){
+  const t=tickets.find(x=>x.id===openId);
+  if(!t){$('detScrim').classList.remove('show');return}
+  const href=safeHref(t.url);
+  const prioSel=el('select',{},['Urgent','High','Medium','Low'].map(p=>{const o=el('option',{value:p,text:p});if(p===t.priority)o.selected=true;return o}));
+  prioSel.addEventListener('change',()=>save(t.id,{priority:prioSel.value}));
+  const note=el('textarea',{placeholder:'What was changed'});note.value=t.resolution_note||'';note.style.minHeight='60px';
+  const toggle=t.status==='Open'
+    ?el('button',{class:'btn ok',text:'Mark resolved',onclick:()=>save(t.id,{status:'Resolved',resolution_note:note.value})})
+    :el('button',{class:'btn',text:'Reopen',onclick:()=>save(t.id,{status:'Open'})});
+  $('det').replaceChildren(
+    el('h2',{},[document.createTextNode(ref(t.id)+'  '),el('span',{class:'pill s-'+t.status,text:t.status})]),
+    el('p',{class:'fulldesc',text:t.description}),
+    el('dl',{class:'dl'},[
+      el('dt',{text:'URL'}),el('dd',{},href?el('a',{href,target:'_blank',rel:'noopener',text:t.url}):document.createTextNode('Not provided')),
+      el('dt',{text:'Priority'}),el('dd',{},prioSel),
+      el('dt',{text:'Reported'}),el('dd',{text:t.reported_by+', '+fmt(t.created_at)}),
+      ...(t.status==='Resolved'?[el('dt',{text:'Resolved'}),el('dd',{text:fmt(t.resolved_at)})]:[])
+    ]),
+    el('label',{text:'Resolution note'}),note,
+    el('div',{class:'big'},(t.screenshot_urls||[]).map(u=>el('img',{src:u,alt:'screenshot',onclick:()=>{$('lbImg').src=u;$('lb').classList.add('show')}}))),
+    el('div',{class:'err',id:'dErr'}),
+    el('div',{class:'actions'},[
+      ...(!t.alert_sent?[el('button',{class:'btn',text:'Resend alert',style:'margin-right:auto',onclick:async e=>{e.target.disabled=true;try{await api('/api/tickets','POST',{action:'resend',id:t.id});t.alert_sent=true;renderDetail()}catch(err){if(!(err instanceof AuthError)){$('dErr').textContent='Alert still did not send.';e.target.disabled=false}}}})]:[]),
+      el('button',{class:'btn',text:'Close',onclick:closeDetail}),
+      ...(t.status==='Resolved'?[el('button',{class:'btn',text:'Save note',onclick:()=>save(t.id,{resolution_note:note.value})})]:[]),
+      toggle
+    ])
+  );
+}
+function closeDetail(){$('detScrim').classList.remove('show');openId=null}
+
+// ---- new ticket ----
+function setPrio(){[...$('fPrio').children].forEach(b=>b.classList.toggle('on',b.dataset.v===newPrio))}
+$('fPrio').addEventListener('click',e=>{const b=e.target.closest('button');if(b){newPrio=b.dataset.v;setPrio()}});
+function resetForm(){$('fDesc').value='';$('fUrl').value='';pending.forEach(p=>URL.revokeObjectURL(p.objUrl));pending=[];newPrio='Medium';setPrio();renderShots();$('fErr').textContent=''}
+$('newBtn').onclick=()=>{if(!pass){showGate();return}$('fName').value=ls.get('wi_name');$('newScrim').classList.add('show');$('fDesc').focus()};
+$('cancelNew').onclick=()=>{$('newScrim').classList.remove('show');resetForm()};
+function renderShots(){
+  $('shots').replaceChildren(...pending.map(p=>el('div',{class:'shot'},[
+    el('img',{src:p.objUrl,alt:''}),
+    p.uploading?el('div',{class:'up',text:'Uploading…'}):p.error?el('div',{class:'up',text:'Failed',style:'color:var(--red)'}):null,
+    el('button',{type:'button',text:'×',title:'Remove',onclick:()=>{URL.revokeObjectURL(p.objUrl);pending=pending.filter(x=>x!==p);renderShots()}})
+  ])));
+}
+const OK_TYPES=['image/png','image/jpeg','image/gif','image/webp'];
+async function addFiles(files){
+  for(const f of files){
+    if(!OK_TYPES.includes(f.type)){$('fErr').textContent='Screenshots must be PNG, JPG, GIF or WebP.';continue}
+    if(f.size>10*1024*1024){$('fErr').textContent='Screenshots must be under 10 MB.';continue}
+    if(pending.length>=10){$('fErr').textContent='10 screenshots max per ticket.';break}
+    const p={file:f,objUrl:URL.createObjectURL(f),uploading:true};pending.push(p);renderShots();
+    try{
+      const {path,uploadUrl}=await api('/api/upload-url','POST',{contentType:f.type});
+      const fd=new FormData();fd.append('cacheControl','3600');fd.append('',f);
+      const r=await fetch(uploadUrl,{method:'PUT',body:fd});
+      if(!r.ok)throw new Error('upload');
+      p.path=path;p.uploading=false;
+    }catch(e){p.uploading=false;p.error=true;if(!(e instanceof AuthError))$('fErr').textContent='A screenshot failed to upload. Remove it and try again.'}
+    renderShots();
+  }
+}
+$('drop').onclick=e=>{if(e.target.id!=='pickBtn')$('drop').focus()};
+$('pickBtn').onclick=e=>{e.stopPropagation();$('file').click()};
+$('file').onchange=e=>{addFiles([...e.target.files]);e.target.value=''};
+['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('over')}));
+['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('over')}));
+$('drop').addEventListener('drop',e=>addFiles([...e.dataTransfer.files]));
+document.addEventListener('paste',e=>{
+  if(!$('newScrim').classList.contains('show'))return;
+  let fs=[...(e.clipboardData?.items||[])].filter(i=>i.kind==='file').map(i=>i.getAsFile()).filter(Boolean);
+  if(!fs.length)fs=[...(e.clipboardData?.files||[])];
+  if(fs.length){e.preventDefault();addFiles(fs)}
+});
+
+let submitting=false;
+$('newForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(submitting)return;
+  const description=$('fDesc').value.trim(),url=$('fUrl').value.trim(),reported_by=$('fName').value.trim();
+  if(!description){$('fErr').textContent='Add a description of the issue.';return}
+  if(url&&!safeHref(url)){$('fErr').textContent='Enter the full URL, starting with https://, or leave it blank.';return}
+  if(!reported_by){$('fErr').textContent='Add your name.';return}
+  if(pending.some(p=>p.uploading)){$('fErr').textContent='Wait for screenshots to finish uploading.';return}
+  submitting=true;$('submitNew').disabled=true;$('fErr').textContent='';
+  try{
+    ls.set('wi_name',reported_by);
+    const t=await api('/api/tickets','POST',{description,url,priority:newPrio,reported_by,screenshots:pending.filter(p=>p.path).map(p=>p.path)});
+    $('newScrim').classList.remove('show');resetForm();
+    notice(t.alert_sent?`${ref(t.id)} submitted. Brenden has been notified.`:`${ref(t.id)} was saved, but the alert to Brenden did not send. Open the ticket and click Resend alert.`);
+    await load();
+  }catch(err){if(!(err instanceof AuthError))$('fErr').textContent=err.message}
+  finally{submitting=false;$('submitNew').disabled=false}
+});
+
+// ---- filters and misc ----
+$('statusSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fStatus=b.dataset.v;[...$('statusSeg').children].forEach(x=>x.classList.toggle('on',x===b));render()});
+$('prioSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fPrio=b.dataset.v;[...$('prioSeg').children].forEach(x=>x.classList.toggle('on',x===b));render()});
+$('q').addEventListener('input',e=>{q=e.target.value.trim();render()});
+$('lb').onclick=()=>$('lb').classList.remove('show');
+$('detScrim').addEventListener('click',e=>{if(e.target.id==='detScrim')closeDetail()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('lb').classList.remove('show');closeDetail()}});
+setInterval(()=>{if(pass&&document.visibilityState==='visible'&&!$('newScrim').classList.contains('show'))load()},60000);
+
+if(pass)load();else{$('list').replaceChildren(el('div',{class:'empty',text:'Enter the team passcode to view tickets.'}));showGate()}
+</script>
+</body>
+
+</html>
